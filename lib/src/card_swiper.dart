@@ -26,6 +26,11 @@ class CardSwiper extends StatefulWidget {
   /// This parameter is required and must be greater than 0.
   final int cardsCount;
 
+  /// Keeps the index at initialIndex
+  ///
+  /// Useful if elements are being popped from the front of the card list as they are swiped
+  final bool constantIndex;
+  
   /// The index of the card to display initially.
   ///
   /// Defaults to 0, meaning the first card in the stack is displayed initially.
@@ -127,6 +132,7 @@ class CardSwiper extends StatefulWidget {
     required this.cardsCount,
     this.controller,
     this.initialIndex = 0,
+    this.constantIndex = false,
     this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
     this.duration = const Duration(milliseconds: 200),
     this.maxAngle = 30,
@@ -186,7 +192,7 @@ class _CardSwiperState<T extends Widget> extends State<CardSwiper>
 
   int? get _currentIndex => _undoableIndex.state;
 
-  int? get _nextIndex => getValidIndexOffset(1);
+  int? get _nextIndex => getValidIndexOffset(widget.constantIndex ? 0 : 1);
 
   bool get _canSwipe => _currentIndex != null && !widget.isDisabled;
 
@@ -298,6 +304,7 @@ class _CardSwiperState<T extends Widget> extends State<CardSwiper>
       child: Transform.scale(
         scale: _cardAnimation.scale - ((1 - widget.scale) * (index - 1)),
         child: ConstrainedBox(
+          key: Key(index.toString()),
           constraints: constraints,
           child: widget.cardBuilder(context, getValidIndexOffset(index)!),
         ),
